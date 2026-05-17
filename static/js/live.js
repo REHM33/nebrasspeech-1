@@ -209,6 +209,7 @@ show(err.message || “Transcription failed.”, “error”);
 async function transcribeBlobLive(blob) {
 try {
 setStatus(“Transcribing…”);
+show(`Sending ${(blob.size / 1024).toFixed(1)} KB…`);
 const fd = new FormData();
 const file = new File([blob], “live.ogg”, { type: blob.type || “audio/ogg” });
 fd.append(“audio”, file);
@@ -217,8 +218,10 @@ const text = data && data.transcription ? String(data.transcription) : “”;
 if (editor) editor.textContent = text;
 updateCounts();
 setStatus(“Recording…”);
-} catch {
-// Silently ignore interim errors — final transcription in onstop is the fallback
+show(text ? “Transcribing live…” : “No speech detected yet.”, text ? “” : “error”);
+} catch (err) {
+console.error(“Live transcribe error:”, err);
+show(err.message || “Transcription failed.”, “error”);
 setStatus(“Recording…”);
 }
 }
